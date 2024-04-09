@@ -1,0 +1,91 @@
+1. 
+
+select customerID
+from customerinteractions
+where (DataUsed > ( select avg(DataUsed) from customerinteractions)) and (month="March") and year = "2024";
+
+2.
+
+select customerID, Callduration
+from customerinteractions
+where month ="February" and year="2024"
+union all
+select customerID, Callduration
+from customerinteractions
+where month ="March" and year="2024"
+order by customerID;
+
+3.
+
+select customerID, messagecount, dataused
+from customerinteractions
+where month ="February" and year="2024"
+union all
+select customerID, messagecount, dataused
+from customerinteractions
+where month ="March" and year="2024"
+order by customerID;
+
+4.
+
+select producttypeID, sum(totalsalesamount) as total_sales from quarterlysales
+group by producttypeID
+order by total_sales desc ;
+
+5.
+
+select producttypeID, sum(totalsalesamount) as total_sales from quarterlysales
+where Quarter = "Q1" and year="2024"
+group by producttypeID
+order by total_sales desc limit 1 ;
+
+6.
+
+select producttypeID, avg(totalsalesamount/UnitsSold) as avg_sales from quarterlysales
+where Quarter = "Q2" and year="2024"
+group by producttypeID;
+
+7.
+
+select region
+from sectorenergyconsumption
+where ConsumptionKWh > (select avg(ConsumptionKWh) from sectorenergyconsumption where EnergySource in ("Solar","Wind") and (month="March" and year="2024"))
+group by region;
+
+8.
+
+select sector, sum(ConsumptionKWh)
+from sectorenergyconsumption
+where month = "February" and year="2024"
+group by sector
+union all
+select sector, sum(ConsumptionKWh)
+from sectorenergyconsumption
+where month = "March" and year="2024"
+group by sector
+order by sector;
+
+9.
+
+select EnergySource, sum(ConsumptionKWh)
+from sectorenergyconsumption
+where month ="February" and year = "2024"
+group by EnergySource;
+
+10.
+
+select CustomerName
+from insuranceactivities
+where FeedbackScore > (select avg(FeedbackScore) from insuranceactivities where Investigation = "No");
+
+11.
+
+select customername, annualpremium
+from insuranceactivities
+where FeedbackScore > (select avg(FeedbackScore) from insuranceactivities where ClaimsCount >= 1);
+
+12.
+
+select PolicyType, avg(FeedbackScore), count(ClaimsCount)
+from insuranceactivities
+group by PolicyType;
