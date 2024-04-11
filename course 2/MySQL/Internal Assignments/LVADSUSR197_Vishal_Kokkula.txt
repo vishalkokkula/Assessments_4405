@@ -1,0 +1,88 @@
+-- 1
+
+select machine_id from l1_maintenance_records
+where cost > (select avg(cost) from l1_maintenance_records where month(maintenance_date) =03 and year(maintenance_date) =2024 )
+group by machine_id;
+
+-- 2
+
+Select maintenance_type, count(maintenance_type) as frequency
+from l1_maintenance_records
+where month(maintenance_date)= 3 and year(maintenance_Date)=2024
+group by maintenance_type;
+
+-- 3
+
+select technician_name, count(technician_name), avg(cost) from l1_maintenance_records
+where month(maintenance_date)= 3 and year(maintenance_Date)=2024
+group by technician_name order by avg(Cost) desc;
+
+-- 4
+
+select product_id,avg(incident_count_pre_update), avg(incident_count_post_update), (avg(incident_count_pre_update)-avg(incident_count_post_update)) as avg_reduction
+from l2_updates
+group by product_id;
+
+-- 5
+
+select update_id, product_id , user_feedback_score
+from l2_updates
+order by user_feedback_score desc;
+
+-- 6
+
+select product_id,avg(incident_count_pre_update), avg(incident_count_post_update), (avg(incident_count_pre_update)-avg(incident_count_post_update)) as avg_reduction
+from l2_updates
+group by product_id
+ORDER BY avg_reduction desc;
+
+-- this shows us the product P103 has least improvement, because even after the update the incidents count is higher than the expected
+
+-- 7
+
+select patient_name, facility_id, v.reason_for_visit, t.outcome
+from l3_patients p
+join l3_visits v using (patient_id)
+join l3_treatments t using(visit_id);
+
+-- 8 
+
+select facility_id, count(facility_id) from l3_visits v
+join l3_facilities f using (facility_id)
+where reason_for_visit="Emergency" and month(visit_date)= 3 and year(visit_Date)=2024
+group by facility_id
+;
+
+-- 9
+ 
+select patient_id,patient_name,insurance_provider from l3_patients p
+join l3_visits v using(patient_id)
+join l3_treatments t using(visit_id)
+where (v.visit_date between("2024-01-01") and ("2024-03-31")) and t.outcome ="Complicated";
+
+-- 10
+
+select  product_name, category, sum(quantity)
+from l4_sales s 
+join l4_products p using(product_id)
+where month(s.sale_date) = 3 and year(s.sale_date)= 2024
+group by product_name, category;
+
+
+
+-- 11
+
+create view Q1_total_sales as 
+							select region, sum(s.quantity*p.price) as tot_sales from l4_sales s
+                            join l4_stores using(store_id)
+                            join l4_products p using(product_id)
+                            where (s.sale_date between("2024-01-01") and ("2024-03-31"))
+                            group by region;
+select * from Q1_total_sales
+order by tot_Sales desc;
+
+-- 12 
+
+select * from l4_products
+full join l4_sales using(product_id)
+where month(sale_date) = 3 and year(sale_Date) = 2024;
