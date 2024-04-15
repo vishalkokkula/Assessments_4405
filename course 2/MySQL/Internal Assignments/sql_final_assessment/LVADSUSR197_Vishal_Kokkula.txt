@@ -1,0 +1,96 @@
+-- 1 
+select product_category, avg(sales_amount) from sales_records join products using(product_id)
+where datediff(now(),sales_date) >= 30 group by product_category;
+
+-- 2
+select product_name, sum(sales_amount), rank() over(order by sum(sales_amount) desc) as `rank` from sales_records 
+join products using(product_id) where year(sales_date) = year(now())
+group by product_name limit 3;
+
+-- 3
+select customer_id,customer_name, sum(sales_amount) as total_sales,
+		ROUND((SUM(sales_amount) / total.total_revenue) * 100, 2) AS c_percentage,
+        	rank() over (order by sum(sales_amount) desc) as sales_rank 
+        	from sales_records 
+		join customers using(customer_id) 
+       	        cross join (SELECT SUM(sales_amount) AS total_revenue FROM sales_records) AS total
+		group by customer_id, customer_name,total.total_revenue;
+
+-- 4
+select customer_id, count(*) , case when count(*) >=4 then "Consistent Buyers" else "Occasional Buyers" end as purchasing_behaviour
+from sales_records  where sales_date between date_sub(now() ,interval 6 month)   and now()
+group by customer_id;
+
+-- 5
+select departure_airport, arrival_airport, avg(ticket_price) from tickets join flights using(flight_id)
+group by departure_airport, arrival_airport;
+
+-- 6
+select flight_number,departure_date, count(*) as tickets_sold from tickets join flights using(flight_id) 
+where ticket_Date between date_sub(now() ,interval 1 month)   and now()
+group by flight_id
+order by tickets_sold desc;
+
+-- 7
+select passenger_name, sum(ticket_price) as spent_amt, count(*) as flyer_frequency_status from tickets join passengers using(passenger_id)
+group by passenger_name
+order by spent_amt desc limit 5;
+
+-- 8
+select month(ticket_date) as month, count(*) as tickets_sold from tickets 
+group by month(ticket_date)
+order by tickets_sold desc;
+
+-- 9
+select player_id,game_genre, count(play_date) as times_played from playerscores join games using(game_id)
+group by player_id,game_genre;
+
+ -- 10
+select game_name, count(*) as no_of_players from playerscores join games using(game_id)
+group by game_name order by no_of_players desc limit 3;
+
+-- 11
+select game_name, avg(score),max(score), count(*) as no_of_players 
+from playerscores join games using(game_id)
+group by game_name;
+
+-- 12
+select player_id,player_name, registration_Date, play_date from players join playerscores ps using(player_id)
+where play_date - registration_date > 30;
+
+-- 13
+select doctor_name, sum(cost) as tot_treatment_cost from treatments join doctors using(doctor_id)
+group by doctor_name order by tot_treatment_cost desc;
+
+-- 14
+select treatment_name, sum(cost) as revenue, (SUM(cost) / (SELECT SUM(cost) FROM treatments)) * 100 AS revenue_percentage
+from treatments group by treatment_name order by revenue desc;
+
+-- 15
+select patient_id, patient_name, admission_date, discharge_date from patients;
+
+-- 16
+select gender, diagnosis, round(avg(discharge_date - admission_date)) as LOS 
+from patients group by gender,diagnosis;
+
+-- 17
+select department, semester, avg(grade) from enrollments 
+join courses using(course_id) 
+group by department,semester order by department,semester;
+
+-- 18
+select major,  enrollment_year, count(course_id) as tot_students from enrollments 
+join students using(student_id) join courses using(course_id)
+group by major, enrollment_year order by tot_students desc;
+
+-- 19
+select student_id, student_name, semester, sum(credits) as total_credits from students
+join enrollments using(student_id) join courses using(course_id)
+group by student_id, student_name, semester
+having total_credits >=50;
+
+-- 20
+select course_name, enrollment_year, count(*) as enrollment_count from enrollments
+join courses using(course_id) join students using(student_id)
+group by course_name, enrollment_year
+order by enrollment_count desc limit 3;
